@@ -3,24 +3,23 @@
   <world name="prim_maze_world">
 
     <!-- Plugins -->
-    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"></plugin>
-    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"></plugin>
-    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"></plugin>
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
     <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
       <render_engine>ogre2</render_engine>
     </plugin>
-    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"></plugin>
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
 
-    <!-- Basic Environment -->
+    <!-- Basic Environment (Fuel URIs) -->
     <include>
-      <uri>model://ground_plane</uri>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Ground Plane</uri>
     </include>
     <include>
-      <uri>model://sun</uri>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Sun</uri>
     </include>
 
     <!-- Maze Walls -->
-    
     <model name="wall_1.5_-2.0">
       <static>true</static>
       <link name="link">
@@ -41,7 +40,6 @@
       </link>
       <pose>1.5 -2.0 0.5 0 0 0</pose>
     </model>
-    
 
     <model name="wall_0_-2.5">
       <static>true</static>
@@ -63,7 +61,6 @@
       </link>
       <pose>0 -2.5 0.5 0 0 0</pose>
     </model>
-    
 
     <model name="wall_0_2.5">
       <static>true</static>
@@ -85,7 +82,6 @@
       </link>
       <pose>0 2.5 0.5 0 0 0</pose>
     </model>
-    
 
     <model name="wall_-2.5_0">
       <static>true</static>
@@ -107,7 +103,6 @@
       </link>
       <pose>-2.5 0 0.5 0 0 1.5708</pose>
     </model>
-    
 
     <model name="wall_2.5_0">
       <static>true</static>
@@ -129,7 +124,6 @@
       </link>
       <pose>2.5 0 0.5 0 0 1.5708</pose>
     </model>
-    
 
     <!-- Camera Configuration -->
     <gui fullscreen="0">
