@@ -3,11 +3,11 @@ import random
 # ==========================
 # Maze Configuration Parameters
 # ==========================
-CELL_SIZE = 0.3      # Distance between cells (affects maze density)
+CELL_SIZE = 0.5      # Distance between cells
 WALL_THICKNESS = 0.1 # Thickness of each wall
 WALL_HEIGHT = 1.0    # Height of each wall
-STEP_SIZE = 1        # Neighbor step size for Prim's algorithm (1 = finer maze, 2 = larger gaps)
-GRID_SIZE = 20       # Size of the maze grid (NxN)
+STEP_SIZE = 1        # Neighbor step size
+GRID_SIZE = 10       # Size of the maze grid (NxN)
 
 # ==========================
 # Wall Creation Function
@@ -144,9 +144,9 @@ def save_maze_to_world():
   </world>
 </sdf>
 """
-    with open("new_prim_maze.world", "w") as file:
+    with open("maze_world.world", "w") as file:
         file.write(sdf_content)
-    print("Maze saved to new_prim_maze.world")
+    print("maze_world.world saved successfully! Old maze_world.world will be overwritten.")
 
 # ==========================
 # Generate and Save the Maze
