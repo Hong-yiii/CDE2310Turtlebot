@@ -126,7 +126,7 @@ def save_maze_to_world():
   </world>
 </sdf>
 """
-    with open("prim_maze.world", "w") as file:
+    with open("new_prim_maze.world", "w") as file: # Save the maze to a file, change target name accordingly
         file.write(sdf_content)
     print("Maze saved to prim_maze.world")
 
