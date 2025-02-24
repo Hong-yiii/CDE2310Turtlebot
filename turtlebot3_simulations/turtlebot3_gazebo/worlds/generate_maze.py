@@ -1,5 +1,17 @@
 import random
 
+# ==========================
+# Maze Configuration Parameters
+# ==========================
+CELL_SIZE = 0.3      # Distance between cells (affects maze density)
+WALL_THICKNESS = 0.1 # Thickness of each wall
+WALL_HEIGHT = 1.0    # Height of each wall
+STEP_SIZE = 1        # Neighbor step size for Prim's algorithm (1 = finer maze, 2 = larger gaps)
+GRID_SIZE = 20       # Size of the maze grid (NxN)
+
+# ==========================
+# Wall Creation Function
+# ==========================
 def create_wall(x, y, length, orientation):
     """
     Create an SDF wall with collision enabled at (x, y) with a certain length and orientation.
@@ -11,42 +23,45 @@ def create_wall(x, y, length, orientation):
         <collision name="collision">
           <geometry>
             <box>
-              <size>{length} 0.5 1</size>
+              <size>{length} {WALL_THICKNESS} {WALL_HEIGHT}</size>
             </box>
           </geometry>
         </collision>
         <visual name="visual">
           <geometry>
             <box>
-              <size>{length} 0.5 1</size>
+              <size>{length} {WALL_THICKNESS} {WALL_HEIGHT}</size>
             </box>
           </geometry>
         </visual>
       </link>
-      <pose>{x} {y} 0.5 0 0 {orientation}</pose>
+      <pose>{x} {y} {WALL_HEIGHT / 2} 0 0 {orientation}</pose>
     </model>
     """
     return wall
 
-def generate_prim_maze(grid_size=10, cell_size=0.5):
+# ==========================
+# Maze Generation with Prim's Algorithm
+# ==========================
+def generate_prim_maze():
     """
-    Generate a maze using Prim's algorithm.
+    Generate a maze using Prim's algorithm with adjustable step size.
     """
     maze = []
-    visited = [[False for _ in range(grid_size)] for _ in range(grid_size)]
+    visited = [[False for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
 
     def neighbors(x, y):
-        directions = [(-2, 0), (2, 0), (0, -2), (0, 2)]
+        directions = [(-STEP_SIZE, 0), (STEP_SIZE, 0), (0, -STEP_SIZE), (0, STEP_SIZE)]
         result = []
         for dx, dy in directions:
             nx, ny = x + dx, y + dy
-            if 0 <= nx < grid_size and 0 <= ny < grid_size:
+            if 0 <= nx < GRID_SIZE and 0 <= ny < GRID_SIZE:
                 result.append((nx, ny))
         return result
 
     # Initialize maze with walls
     wall_list = []
-    start_x, start_y = random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)
+    start_x, start_y = random.randint(0, GRID_SIZE - 1), random.randint(0, GRID_SIZE - 1)
     visited[start_x][start_y] = True
     wall_list.extend(neighbors(start_x, start_y))
 
@@ -54,7 +69,7 @@ def generate_prim_maze(grid_size=10, cell_size=0.5):
         wx, wy = random.choice(wall_list)
         wall_list.remove((wx, wy))
 
-        adjacent_cells = [(wx + dx, wy + dy) for dx, dy in [(-2, 0), (2, 0), (0, -2), (0, 2)] if 0 <= wx + dx < grid_size and 0 <= wy + dy < grid_size]
+        adjacent_cells = [(wx + dx, wy + dy) for dx, dy in [(-STEP_SIZE, 0), (STEP_SIZE, 0), (0, -STEP_SIZE), (0, STEP_SIZE)] if 0 <= wx + dx < GRID_SIZE and 0 <= wy + dy < GRID_SIZE]
         unvisited_neighbors = [cell for cell in adjacent_cells if not visited[cell[0]][cell[1]]]
 
         if len(unvisited_neighbors) == 1:
@@ -62,25 +77,28 @@ def generate_prim_maze(grid_size=10, cell_size=0.5):
             visited[nx][ny] = True
 
             # Convert grid coordinates to actual positions
-            x_center = (wx - grid_size // 2) * cell_size
-            y_center = (wy - grid_size // 2) * cell_size
+            x_center = (wx - GRID_SIZE // 2) * CELL_SIZE
+            y_center = (wy - GRID_SIZE // 2) * CELL_SIZE
 
             # Wall between the two cells
             orientation = 0 if wx == nx else 1.5708  # Horizontal or vertical
-            length = cell_size
+            length = CELL_SIZE
             maze.append(create_wall(x_center, y_center, length, orientation))
 
             # Add new neighbors to the wall list
             wall_list.extend(neighbors(nx, ny))
 
     # Add outer walls
-    maze.append(create_wall(0, -(grid_size / 2) * cell_size, grid_size * cell_size, 0))  # Bottom
-    maze.append(create_wall(0, (grid_size / 2) * cell_size, grid_size * cell_size, 0))   # Top
-    maze.append(create_wall(-(grid_size / 2) * cell_size, 0, grid_size * cell_size, 1.5708))  # Left
-    maze.append(create_wall((grid_size / 2) * cell_size, 0, grid_size * cell_size, 1.5708))   # Right
+    maze.append(create_wall(0, -(GRID_SIZE / 2) * CELL_SIZE, GRID_SIZE * CELL_SIZE, 0))  # Bottom
+    maze.append(create_wall(0, (GRID_SIZE / 2) * CELL_SIZE, GRID_SIZE * CELL_SIZE, 0))   # Top
+    maze.append(create_wall(-(GRID_SIZE / 2) * CELL_SIZE, 0, GRID_SIZE * CELL_SIZE, 1.5708))  # Left
+    maze.append(create_wall((GRID_SIZE / 2) * CELL_SIZE, 0, GRID_SIZE * CELL_SIZE, 1.5708))   # Right
 
     return "\n".join(maze)
 
+# ==========================
+# Saving Maze to Gazebo World
+# ==========================
 def save_maze_to_world():
     maze_walls = generate_prim_maze()
 
@@ -88,7 +106,7 @@ def save_maze_to_world():
 <sdf version="1.6">
   <world name="prim_maze_world">
 
-        <!-- Plugins -->
+    <!-- Plugins -->
     <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
     <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
     <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
@@ -126,9 +144,11 @@ def save_maze_to_world():
   </world>
 </sdf>
 """
-    with open("new_prim_maze.world", "w") as file: # Save the maze to a file, change target name accordingly
+    with open("new_prim_maze.world", "w") as file:
         file.write(sdf_content)
-    print("Maze saved to prim_maze.world")
+    print("Maze saved to new_prim_maze.world")
 
-# Generate and save the maze
+# ==========================
+# Generate and Save the Maze
+# ==========================
 save_maze_to_world()
