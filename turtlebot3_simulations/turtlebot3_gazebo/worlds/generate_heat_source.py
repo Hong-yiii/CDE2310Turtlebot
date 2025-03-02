@@ -5,11 +5,11 @@ import os
 # Maze boundaries for random heat source placement
 X_MIN, X_MAX = -2.0, 2.0
 Y_MIN, Y_MAX = -2.0, 2.0
-DISTANCE_THRESHOLD = 0.5  # Minimum distance between heat sources
+DISTANCE_THRESHOLD = 0.5  # Min distance between heat sources
 
 # Function to calculate Euclidean distance
 def distance(p1, p2):
-    return ((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2) ** 0.5
+    return ((p1[0] - p2[0])  2 + (p1[1] - p2[1])  2) ** 0.5
 
 # Generate non-overlapping random positions for heat sources
 def generate_positions(count=3):
@@ -61,8 +61,8 @@ def generate_heat_source_sdf(x, y, index):
     </model>
     """
 
-# Integrate generated heat sources into the existing world file
-def integrate_heat_sources_into_world(world_path):
+# Integrate generated heat sources into the maze world file
+def integrate_heat_sources_into_world(world_path, output_path):
     positions = generate_positions()
     heat_blocks = [generate_heat_source_sdf(x, y, i) for i, (x, y) in enumerate(positions)]
 
@@ -72,14 +72,15 @@ def integrate_heat_sources_into_world(world_path):
     # Insert heat sources before </world>
     updated_world = world_data.replace("</world>", "\n".join(heat_blocks) + "\n</world>")
 
-    # Overwrite the original world file
-    with open("maze_world.world", "w") as file:
+    with open(output_path, "w") as file:
         file.write(updated_world)
-    print(" 3 heat sources generated at:", positions)
-    print(" Maze saved successfully (`maze_world.world` overwritten).")
 
-if __name__ == "__main__":
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    world_path = os.path.join(current_dir, "../worlds/maze_world.world")
+    print(f" 3 heat sources generated at: {positions}")
+    print(f" Updated world saved at: {output_path}")
 
-    integrate_heat_sources_into_world(world_path)
+if name == "main":
+    current_dir = os.path.dirname(os.path.abspath(file))
+    world_path = os.path.join(current_dir, "../worlds/prim_maze_world.world")
+    output_path = os.path.join(current_dir, "../worlds/prim_maze_world_with_heat.world")
+
+    integrate_heat_sources_into_world(world_path, output_path)
